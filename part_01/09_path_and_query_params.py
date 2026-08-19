@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status
-from typing import Any
+from typing import Any, Literal
 from scalar_fastapi import get_scalar_api_reference
 from starlette.responses import HTMLResponse
 
@@ -106,8 +106,20 @@ def add_shipment(data: dict[str, Any]) -> dict[str, int]:
 
 
 # Its just a demo of how we can mix ​and match the query and path parameters
+# Specific-field route:
+# Use a path parameter to choose which field of a shipment to retrieve,
+# and a query parameter to identify the shipment.
+# Example: GET /shipment/status?id=893764 → {"status": "placed"}
+# This demonstrates controlled retrieval of a specific entity field
+# instead of returning the entire shipment object.
 @app.get("/shipment/{field}")
-def get_shipment_field(field: str, id: int) -> dict[str, Any]:
+def get_shipment_field(field: Literal["content", "weight", "status"], id: int) -> dict[str, Any]:
+    if id not in shipments:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Given id doesn't exist!"
+        )
+
     # return shipments[id][field]   # can be returned like this, but NOT recommended
     return {
         field: shipments[id][field]
