@@ -1,3 +1,6 @@
+from http.client import NOT_ACCEPTABLE
+import stat
+
 from fastapi import FastAPI, HTTPException, status
 from typing import Any
 from scalar_fastapi import get_scalar_api_reference
@@ -62,17 +65,24 @@ def get_shipment(id: int | None = None) -> dict[str, Any]:  # This can also be d
     
     return shipments[id]
 
-# @app.post("/shipment")
-# def add_shipment(content: str, weight: float) -> dict[str, int]:
-#     new_id = max(shipments.keys()) + 1
+@app.post("/shipment")
+def add_shipment(content: str, weight: float) -> dict[str, int]:
+    if weight > 25:
+        raise HTTPException(
+            # status_code=NOT_ACCEPTABLE,
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Maximum limit is 25 kg!"
+        )
+    
+    new_id = max(shipments.keys()) + 1
 
-#     shipments[new_id] = {
-#         "weight": weight,
-#         "content": content,
-#         "status": "placed"
-#     }
+    shipments[new_id] = {
+        "weight": weight,
+        "content": content,
+        "status": "placed"
+    }
 
-#     return {"id": new_id}
+    return {"id": new_id}
 
 # @app.post("/shipment")
 # def add_shipment(weight: float, data: dict[str, str]) -> dict[str, int]:
@@ -88,21 +98,21 @@ def get_shipment(id: int | None = None) -> dict[str, Any]:  # This can also be d
 
 #     return {"id": new_id}
 
-@app.post("/shipment")
-# Even if function is written like this, the client can still send query params in the URL, like ?weight=2.5&content=hp along with JSON in the body, like {"weight": 3, "content": "hp elitebook"}. FastAPI will only pass what matches the function signature.
-# Pydantic Model can be used for more validation here
-def add_shipment(data: dict[str, Any]) -> dict[str, int]:
-    weight = data["weight"]
-    content = data["content"]
+# @app.post("/shipment")
+# # Even if function is written like this, the client can still send query params in the URL, like ?weight=2.5&content=hp along with JSON in the body, like {"weight": 3, "content": "hp elitebook"}. FastAPI will only pass what matches the function signature.
+# # Pydantic Model can be used for more validation here
+# def add_shipment(data: dict[str, Any]) -> dict[str, int]:
+#     weight = data["weight"]
+#     content = data["content"]
 
-    new_id = max(shipments.keys()) + 1
+#     new_id = max(shipments.keys()) + 1
 
-    shipments[new_id] = {
-        "weight": weight,
-        "content": content
-    }
+#     shipments[new_id] = {
+#         "weight": weight,
+#         "content": content
+#     }
 
-    return {"id": new_id}
+#     return {"id": new_id}
 
 
 # Scalar API Documentation
