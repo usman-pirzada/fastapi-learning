@@ -124,8 +124,20 @@ def patch_shipment(
 
     return shipments[id]
 
-@app.delete("/shipment")
-def delete_shipment(id: int) -> dict[str, str]:
+# @app.delete("/shipment")
+# def delete_shipment(id: int) -> dict[str, str]:
+#     if id not in shipments:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,  # Here writing only status was conflicting with the status attr in fn params
+#             detail="Given id doesn't exist!"
+#         )
+
+#     shipments.pop(id)
+
+#     return {"detail" : f"The shipment with id #{id} deleted successfully!"}
+
+@app.delete("/shipment", status_code=status.HTTP_204_NO_CONTENT)
+def delete_shipment(id: int) -> None:
     if id not in shipments:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,  # Here writing only status was conflicting with the status attr in fn params
@@ -134,7 +146,6 @@ def delete_shipment(id: int) -> dict[str, str]:
 
     shipments.pop(id)
 
-    return {"detail" : f"The shipment with id #{id} deleted successfully!"}
 
 
 
